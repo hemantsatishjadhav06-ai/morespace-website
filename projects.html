@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luxury Residential Projects in Hyderabad | More Space</title>
+<meta name="description" content="Explore premium apartments, gated villa communities and plotted layouts across Hyderabad — Aparna Zenon, Rajapushpa, Vasavi Atlantis, ASBL Broadway and more. Filter by type and enquire on WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=64,fit=crop/AMq19Z68OEtq90DG/untitled-design-A85V2Gln5jFKZkow.png">
+</head>
+<body data-page="projects" class="subpage">
+<div id="site-header"></div>
+
+<section class="page-hero has-photo">
+  <div class="page-hero__bg"><img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1600,h=700,fit=crop/AMq19Z68OEtq90DG/3.-aerial-top-view-Yg2yLwERJRF8BKBE.jpg" alt=""></div>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="sep">/</span><span>Projects</span></nav>
+    <span class="eyebrow" style="color:#cfc9ff">Featured portfolio</span>
+    <h1>Luxury residential projects in Hyderabad</h1>
+    <p>Hyderabad is a top choice for luxury homebuyers — a booming IT hub with excellent infrastructure. Every project below is strategically located near schools, hospitals, business centres and entertainment zones.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="filterbar" role="tablist" aria-label="Filter projects">
+      <button class="chip is-active" data-filter="all">All projects</button>
+      <button class="chip" data-filter="apartments">Apartments</button>
+      <button class="chip" data-filter="villas">Villas</button>
+      <button class="chip" data-filter="plots">Plots</button>
+    </div>
+    <div class="project-grid" id="projectGrid"></div>
+  </div>
+</section>
+
+<section class="section section--paper">
+  <div class="container">
+    <div class="cta-banner reveal">
+      <span class="eyebrow" style="color:#cfc9ff">Can't decide?</span>
+      <h2>Tell us what you're looking for</h2>
+      <p>Share your budget, preferred location and configuration — we'll shortlist the best-matched projects, including landlord-share and investor units not listed publicly.</p>
+      <div class="actions">
+        <a class="btn btn-light" href="contact.html">Get a shortlist</a>
+        <a class="btn btn-dark" id="projWa" href="#" target="_blank" rel="noopener">WhatsApp an advisor</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const e = document.getElementById('projWa');
+    if (e) e.href = wa('Hi More Space, please help me shortlist projects in Hyderabad.');
+  });
+</script>
+</body>
+</html>

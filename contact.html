@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact More Space | Property Buying Help in Hyderabad</title>
+<meta name="description" content="Contact More Space for expert property-buying help in Hyderabad. Visit us in Gachibowli, call +91 70751 68306, or send an enquiry — we guide you with transparency and care.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=64,fit=crop/AMq19Z68OEtq90DG/untitled-design-A85V2Gln5jFKZkow.png">
+</head>
+<body data-page="contact" class="subpage">
+<div id="site-header"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="sep">/</span><span>Contact</span></nav>
+    <span class="eyebrow" style="color:#cfc9ff">Get in touch</span>
+    <h1>Let's find your ideal property in Hyderabad</h1>
+    <p>Real estate guidance and support with transparency and care. Reach out and we'll get back to you within working hours.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <!-- Info -->
+    <div class="reveal">
+      <span class="eyebrow">Our office</span>
+      <h2 class="h-md" style="margin-top:.5rem">Visit, call or message us</h2>
+      <div class="info-list">
+        <div class="info-item">
+          <span class="ic" id="ic-pin"></span>
+          <div><h4>Address</h4><p id="addr"></p></div>
+        </div>
+        <div class="info-item">
+          <span class="ic" id="ic-phone"></span>
+          <div><h4>Phone</h4><p><a id="tel1" href="#"></a><br><a id="tel2" href="#"></a></p></div>
+        </div>
+        <div class="info-item">
+          <span class="ic" id="ic-mail"></span>
+          <div><h4>Email</h4><p><a id="mail" href="#"></a></p></div>
+        </div>
+        <div class="info-item">
+          <span class="ic" id="ic-clock"></span>
+          <div><h4>Hours</h4><p id="hours"></p></div>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <iframe title="More Space location — Gachibowli, Hyderabad" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=Khajaguda,Gachibowli,Hyderabad,Telangana%20500032&output=embed"></iframe>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="reveal" data-d="1">
+      <form class="form" id="contactForm" novalidate>
+        <div class="form-success" id="formSuccess">Thanks! Opening WhatsApp so you can send your enquiry directly. We'll respond within working hours.</div>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" placeholder="Your full name" autocomplete="name">
+        </div>
+        <div class="field two">
+          <div>
+            <label for="phone">Mobile number *</label>
+            <input id="phone" name="phone" type="tel" placeholder="+91 ..." required autocomplete="tel">
+          </div>
+          <div>
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" placeholder="you@email.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="field">
+          <label for="interest">I'm interested in</label>
+          <select id="interest" name="interest">
+            <option>A featured project</option>
+            <option>An upcoming / pre-launch project</option>
+            <option>Landlord share / investor flat</option>
+            <option>A villa / gated community</option>
+            <option>General guidance</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" placeholder="Tell us your budget, preferred location and configuration…" required></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Submit enquiry</button>
+        <p class="form-note">By submitting, your details open in WhatsApp to message us directly — nothing is stored on this site.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('ic-pin').innerHTML = I.pin;
+    document.getElementById('ic-phone').innerHTML = I.phone;
+    document.getElementById('ic-mail').innerHTML = I.mail;
+    document.getElementById('ic-clock').innerHTML = I.clock;
+    document.getElementById('addr').textContent = SITE.address;
+    document.getElementById('hours').textContent = SITE.hours;
+    const t1 = document.getElementById('tel1'); t1.textContent = SITE.phone; t1.href = 'tel:' + SITE.phoneRaw;
+    const t2 = document.getElementById('tel2'); t2.textContent = SITE.phoneAlt; t2.href = 'tel:' + SITE.phoneAlt.replace(/\s/g,'');
+    const m = document.getElementById('mail'); m.textContent = SITE.email; m.href = 'mailto:' + SITE.email;
+  });
+</script>
+</body>
+</html>
