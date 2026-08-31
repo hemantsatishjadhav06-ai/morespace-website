@@ -33,14 +33,15 @@ const BRAND = {
   address: "Neopolis Infra, Prashanthi Hills, Gachibowli, Hyderabad 500032"
 };
 
-const DEFAULT_LOGIN = { user: "backend", pass: "MoreSpace@2026" };
-
-/* Extra team accounts, verified by SHA-256 hash so plaintext isn't in the
-   file. To add one, run in the browser console:
-     copy(await sha256("their-password"))
-   then push { user, name, role, hash } below (user must be lowercase). */
+/* Team accounts, verified by SHA-256 hash so no plaintext password sits in
+   this file. Two logins are provisioned:
+       backend / MoreSpace@2026   (Backend Team)
+       sales   / Sales@2026       (Sales Team)
+   To change one, run in the browser console:  copy(await sha256("newpass"))
+   and replace the matching `hash` below (usernames must be lowercase). */
 const TEAM_ACCOUNTS = [
-  // { user: "priya", name: "Priya", role: "Sales", hash: "<64-hex sha256>" }
+  { user: "backend", name: "Backend Team", role: "Cost Sheet", hash: "aeae8cef432e0dd99731d1bfab7b6cdbdfe152ddbc36f2db84876587abf0e201" },
+  { user: "sales",   name: "Sales Team",   role: "Cost Sheet", hash: "65f478a5738e3437839f9767c0600050ffd4429f1cb521d76f22351124813020" }
 ];
 
 async function sha256(text) {
@@ -50,13 +51,9 @@ async function sha256(text) {
 
 async function verifyLogin(user, pass) {
   const u = (user || "").trim().toLowerCase();
-  const p = pass || "";
-  if (u === DEFAULT_LOGIN.user) {
-    return p === DEFAULT_LOGIN.pass ? { name: "Backend Team", role: "Cost Sheet", user: u } : null;
-  }
   const acct = TEAM_ACCOUNTS.find(a => a.user === u);
-  if (acct && acct.hash && acct.hash.length === 64) {
-    if ((await sha256(p)) === acct.hash) return { name: acct.name, role: acct.role, user: u };
+  if (acct && acct.hash.length === 64 && (await sha256(pass || "")) === acct.hash) {
+    return { name: acct.name, role: acct.role, user: u };
   }
   return null;
 }

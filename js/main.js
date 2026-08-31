@@ -112,7 +112,7 @@ function buildHeader() {
         </ul>
         <div class="nav-cta">
           <a class="btn btn-ghost btn-sm" href="tel:${SITE.phoneRaw}">${I.phone}<span>Call</span></a>
-          <a class="btn btn-ghost btn-sm" href="portal/index.html" rel="nofollow" title="Backend team login" aria-label="Team login">${I.key}<span>Login</span></a>
+          <a class="btn btn-ghost btn-sm" href="admin/index.html" rel="nofollow" title="Backend team login" aria-label="Team login">${I.key}<span>Login</span></a>
           <a class="btn btn-primary btn-sm" href="contact.html">Enquire</a>
           <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
         </div>
@@ -182,7 +182,7 @@ function buildFooter() {
           <a href="contact.html">Privacy</a>
           <a href="contact.html">Disclaimer</a>
           <a href="${wa('Hi More Space!')}" target="_blank" rel="noopener">WhatsApp</a>
-          <a href="portal/index.html" rel="nofollow">Team Login</a>
+          <a href="admin/index.html" rel="nofollow">Team Login</a>
         </div>
       </div>
     </div>
