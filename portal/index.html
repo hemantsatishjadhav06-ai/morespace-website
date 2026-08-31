@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>More Space — Cost Sheet Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --indigo:#2D236D; --blue:#0300C7; --charcoal:#1D1E20; --green:#009100;
+      --line:#e6e7ee; --muted:#6b6d80; --bg:#f4f5fa; --card:#fff;
+      --shadow:0 10px 40px rgba(45,35,109,.10);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--charcoal);font-family:"DM Sans",system-ui,sans-serif;line-height:1.5}
+    h1,h2,h3{font-family:"Outfit",sans-serif;margin:0}
+    a{color:var(--blue)}
+    .wrap{max-width:1200px;margin:0 auto;padding:24px}
+
+    /* Header */
+    header.topbar{background:var(--indigo);color:#fff}
+    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;gap:16px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#6a63ff);display:grid;place-items:center;font-family:"Outfit";font-weight:800;color:#fff}
+    .brand h1{font-size:18px;letter-spacing:.2px}
+    .brand small{display:block;font-family:"DM Sans";font-weight:400;opacity:.75;font-size:12px}
+    .who{font-size:13px;opacity:.9;display:flex;align-items:center;gap:12px}
+    .who button{background:rgba(255,255,255,.14);border:0;color:#fff;padding:7px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px}
+    .who button:hover{background:rgba(255,255,255,.24)}
+
+    /* Login overlay */
+    .gate{position:fixed;inset:0;background:linear-gradient(135deg,#221a55,#0300C7);display:grid;place-items:center;z-index:50;padding:24px}
+    .gate .card{background:#fff;border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:400px;padding:32px}
+    .gate h2{font-size:22px;color:var(--indigo)}
+    .gate p.sub{color:var(--muted);font-size:14px;margin:6px 0 22px}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+    .field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff}
+    .field input:focus,.field select:focus{outline:2px solid rgba(3,0,199,.25);border-color:var(--blue)}
+    .btn{background:var(--blue);color:#fff;border:0;border-radius:9px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;width:100%}
+    .btn:hover{filter:brightness(1.08)}
+    .btn.secondary{background:#eef0fb;color:var(--indigo)}
+    .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--charcoal);width:auto}
+    .err{color:#c0392b;font-size:13px;min-height:18px;margin-top:4px}
+    .hint{font-size:12px;color:var(--muted);background:#f7f8fd;border:1px dashed var(--line);border-radius:9px;padding:10px 12px;margin-top:14px}
+    .hint code{background:#eceefb;padding:1px 6px;border-radius:5px;font-size:12px}
+
+    /* App layout */
+    .app{display:none}
+    .grid{display:grid;grid-template-columns:minmax(340px,1fr) minmax(360px,1.15fr);gap:24px;align-items:start}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px}
+    .panel h2{font-size:16px;color:var(--indigo);margin-bottom:4px}
+    .panel .desc{color:var(--muted);font-size:13px;margin-bottom:18px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:520px){.row{grid-template-columns:1fr}}
+    fieldset{border:0;padding:0;margin:0 0 6px}
+    legend{font-family:"Outfit";font-weight:600;font-size:13px;color:var(--indigo);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--line);width:100%}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .actions .btn{width:auto}
+
+    /* Cost sheet preview */
+    .sheet{background:#fff}
+    .sheet .sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:2px solid var(--indigo);padding-bottom:14px;margin-bottom:14px}
+    .sheet .sheet-head h3{color:var(--indigo);font-size:20px}
+    .sheet .meta{font-size:13px;color:var(--muted)}
+    .sheet .meta b{color:var(--charcoal)}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    table td{padding:9px 4px;border-bottom:1px solid var(--line)}
+    table td.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+    tr.subtotal td{font-weight:700;background:#f7f8fd}
+    tr.total td{font-family:"Outfit";font-weight:800;font-size:17px;color:var(--green);border-top:2px solid var(--indigo);border-bottom:0;padding-top:14px}
+    .allin{margin-top:8px;font-size:13px;color:var(--muted);text-align:right}
+    .stamp{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.6;border-top:1px dashed var(--line);padding-top:12px}
+
+    /* Print */
+    @media print{
+      body{background:#fff}
+      header.topbar,.panel.form,.actions,.no-print{display:none!important}
+      .grid{display:block}
+      .panel{box-shadow:none;border:0;padding:0}
+      .app{display:block!important}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= LOGIN GATE ================= -->
+  <div class="gate" id="gate">
+    <div class="card">
+      <div class="brand" style="margin-bottom:18px">
+        <div class="logo">MS</div>
+        <div><h1 style="color:var(--indigo);font-size:18px">More Space</h1>
+        <small style="color:var(--muted)">Backend Team Portal</small></div>
+      </div>
+      <h2>Cost Sheet Login</h2>
+      <p class="sub">Internal tool — team access only.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="u">Username</label>
+          <input id="u" autocomplete="username" placeholder="username" required />
+        </div>
+        <div class="field">
+          <label for="p">Password</label>
+          <input id="p" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </div>
+        <div class="err" id="loginErr"></div>
+        <button class="btn" type="submit">Sign in</button>
+      </form>
+      <div class="hint">
+        <b>Test credentials</b> — user <code>backend</code> · pass <code>MoreSpace@2026</code>.<br>
+        Change these in <code>portal/cost-sheet.js</code> before sharing widely.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= APP ================= -->
+  <header class="topbar no-print">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">MS</div>
+        <div><h1>More Space — Cost Sheet</h1><small>Backend Team Portal</small></div>
+      </div>
+      <div class="who">
+        <span id="whoLabel"></span>
+        <button id="logoutBtn" type="button">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap app" id="app">
+    <div class="grid">
+      <!-- ---------- FORM ---------- -->
+      <section class="panel form">
+        <h2>Generate a cost sheet</h2>
+        <p class="desc">Pick a running project to auto-fill the base rate, then adjust. Everything is editable.</p>
+
+        <fieldset>
+          <legend>Project & unit</legend>
+          <div class="field">
+            <label for="project">Project</label>
+            <select id="project"></select>
+          </div>
+          <div class="row">
+            <div class="field"><label for="unit">Unit / Flat no.</label><input id="unit" placeholder="e.g. A-1204" /></div>
+            <div class="field"><label for="customer">Customer name</label><input id="customer" placeholder="e.g. Mr. Rao" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="sba">Saleable area (sq ft)</label><input id="sba" inputmode="decimal" value="2000" /></div>
+            <div class="field"><label for="floor">Floor</label><input id="floor" inputmode="decimal" value="10" /></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Rates (₹/sq ft)</legend>
+          <div class="row">
+            <div class="field"><label for="baseRate">Base rate</label><input id="baseRate" inputmode="decimal" value="9000" /></div>
+            <div class="field"><label for="discountPsf">Discount /sq ft</label><input id="discountPsf" inputmode="decimal" value="0" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="floorRise">Floor rise /sq ft/floor</label><input id="floorRise" inputmode="decimal" value="30" /></div>
+            <div class="field"><label for="plc">PLC /sq ft</label><input id="plc" inputmode="decimal" value="0" /></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Lump-sum & one-time</legend>
+          <div class="row">
+            <div class="field"><label for="amenities">Amenities / Clubhouse</label><input id="amenities" inputmode="decimal" value="300000" /></div>
+            <div class="field"><label for="otherCharges">Other charges</label><input id="otherCharges" inputmode="decimal" value="0" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="parkingCount">Car parking slots</label><input id="parkingCount" inputmode="decimal" value="1" /></div>
+            <div class="field"><label for="parkingRate">Rate / slot</label><input id="parkingRate" inputmode="decimal" value="0" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="corpus">Corpus fund</label><input id="corpus" inputmode="decimal" value="150000" /></div>
+            <div class="field"><label for="maintMonths">Maintenance (months)</label><input id="maintMonths" inputmode="decimal" value="24" /></div>
+          </div>
+          <div class="field"><label for="maintRate">Maintenance /sq ft/month</label><input id="maintRate" inputmode="decimal" value="4" /></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Taxes & registration (%)</legend>
+          <div class="row">
+            <div class="field"><label for="gstPct">GST %</label><input id="gstPct" inputmode="decimal" value="5" /></div>
+            <div class="field"><label for="regPct">Stamp duty & reg. %</label><input id="regPct" inputmode="decimal" value="7.5" /></div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button class="btn" id="genBtn" type="button">Generate</button>
+          <button class="btn secondary" id="printBtn" type="button">Print / PDF</button>
+          <button class="btn ghost" id="csvBtn" type="button">Export CSV</button>
+          <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+        </div>
+      </section>
+
+      <!-- ---------- PREVIEW ---------- -->
+      <section class="panel">
+        <div class="sheet" id="sheet"><!-- rendered --></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="cost-sheet.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const SS_KEY = "ms_portal_session";
+
+    /* ---------- Auth ---------- */
+    function showApp(session){
+      $("gate").style.display = "none";
+      $("app").style.display = "block";
+      $("whoLabel").textContent = session.name + " · " + session.role;
+      initApp();
+    }
+    (function restore(){
+      try{ const s = JSON.parse(sessionStorage.getItem(SS_KEY)||"null"); if(s&&s.user) showApp(s); }catch(e){}
+    })();
+
+    $("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      $("loginErr").textContent = "";
+      const session = await verifyLogin($("u").value, $("p").value);
+      if(!session){ $("loginErr").textContent = "Invalid username or password."; return; }
+      try{ sessionStorage.setItem(SS_KEY, JSON.stringify(session)); }catch(e){}
+      showApp(session);
+    });
+    $("logoutBtn").addEventListener("click", () => {
+      try{ sessionStorage.removeItem(SS_KEY); }catch(e){}
+      location.reload();
+    });
+
+    /* ---------- App ---------- */
+    let appReady = false;
+    function readInputs(){
+      const ids = ["unit","customer","sba","floor","baseRate","discountPsf","floorRise","plc",
+        "amenities","otherCharges","parkingCount","parkingRate","corpus","maintMonths","maintRate","gstPct","regPct"];
+      const o = {}; ids.forEach(k => o[k] = $(k).value); return o;
+    }
+    function currentProject(){ return CATALOGUE[$("project").selectedIndex] || CATALOGUE[0]; }
+
+    function render(){
+      const i = readInputs();
+      const p = currentProject();
+      const cs = computeCostSheet(i);
+      const today = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+      const rowsHtml = cs.rows.map(r =>
+        `<tr class="${r.subtotal?'subtotal':''}"><td>${r.label}</td><td class="amt">${inr(r.amount)}</td></tr>`
+      ).join("");
+      $("sheet").innerHTML = `
+        <div class="sheet-head">
+          <div>
+            <h3>Cost Sheet</h3>
+            <div class="meta">More Space · ${today}</div>
+          </div>
+          <div class="meta" style="text-align:right">
+            <div><b>${p.name}</b></div>
+            <div>${p.loc}</div>
+            <div>${p.type} · ${p.config}</div>
+            ${p.rera && p.rera!=="—" ? `<div>RERA: ${p.rera}</div>`:""}
+          </div>
+        </div>
+        <div class="meta" style="margin-bottom:12px">
+          ${i.customer?`<b>Customer:</b> ${escapeHtml(i.customer)} &nbsp;·&nbsp; `:""}
+          ${i.unit?`<b>Unit:</b> ${escapeHtml(i.unit)} &nbsp;·&nbsp; `:""}
+          <b>Area:</b> ${fmt(cs.sba)} sq ft &nbsp;·&nbsp; <b>Floor:</b> ${fmt(num(i.floor))}
+        </div>
+        <table>
+          <tbody>
+            ${rowsHtml}
+            <tr class="total"><td>Grand Total</td><td class="amt">${inr(cs.grandTotal)}</td></tr>
+          </tbody>
+        </table>
+        <div class="allin">≈ ${crores(cs.grandTotal)} &nbsp;·&nbsp; all-in ₹${fmt(cs.allInRate)}/sq ft</div>
+        <div class="stamp">
+          Indicative estimate generated by the More Space backend portal for internal use.
+          Figures are subject to developer confirmation, applicable taxes and prevailing
+          government charges. Not a price quotation or offer.
+        </div>`;
+    }
+    function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+    function initApp(){
+      if(appReady) return; appReady = true;
+      const sel = $("project");
+      sel.innerHTML = CATALOGUE.map(p => `<option>${p.name} — ${p.loc}</option>`).join("");
+      sel.addEventListener("change", () => {
+        const p = currentProject();
+        if(p.rate) $("baseRate").value = p.rate;
+        render();
+      });
+      // live update on any input
+      document.querySelectorAll("#app input, #app select").forEach(el =>
+        el.addEventListener("input", render));
+      $("genBtn").addEventListener("click", render);
+      $("printBtn").addEventListener("click", () => window.print());
+      $("resetBtn").addEventListener("click", () => { location.reload(); });
+      $("csvBtn").addEventListener("click", exportCsv);
+      // prime base rate from first project
+      if(CATALOGUE[0].rate) $("baseRate").value = CATALOGUE[0].rate;
+      render();
+    }
+
+    function exportCsv(){
+      const i = readInputs(); const p = currentProject(); const cs = computeCostSheet(i);
+      const lines = [["More Space — Cost Sheet"],["Project",p.name],["Location",p.loc],
+        ["Customer",i.customer||""],["Unit",i.unit||""],["Area (sq ft)",cs.sba],["Floor",num(i.floor)],[""],
+        ["Line item","Amount (INR)"]];
+      cs.rows.forEach(r => lines.push([r.label.replace(/,/g," "), Math.round(r.amount)]));
+      lines.push(["Grand Total", Math.round(cs.grandTotal)]);
+      lines.push(["All-in rate (/sq ft)", Math.round(cs.allInRate)]);
+      const csv = lines.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv],{type:"text/csv"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `cost-sheet_${p.name.replace(/\s+/g,"-").toLowerCase()}.csv`;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  </script>
+</body>
+</html>
