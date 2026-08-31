@@ -1,19 +1,22 @@
 /* ===================================================================
    More Space — Backend Team Portal
    Cost Sheet generator logic + project catalogue + lightweight gate
+
+   The cost-sheet format & default rates mirror the team's reference
+   sheet (MoonGlade sample): Basic Price, Floor Rise (from 6th floor),
+   East-facing / Corner / View-premium charges, Car Parking, Amenities,
+   Clubhouse, Legal & Documentation -> Total Sale Consideration; then
+   W.E.G.I, Corpus, 24-month Maintenance + 18% GST on AMC -> Net Total.
    =================================================================== */
 
 /* -------------------------------------------------------------------
    1. TEAM ACCESS (lightweight gate)
    -------------------------------------------------------------------
-   IMPORTANT: This is a client-side convenience gate to keep the tool
-   out of casual public view — it is NOT real security. Anyone who can
-   read this file can read these credentials. For genuine protection:
+   IMPORTANT: client-side convenience gate, NOT real security. Anyone who
+   can read this file can read these credentials. For genuine protection:
      • host this portal in a PRIVATE repo / behind Netlify password, or
      • wire it to Supabase Auth (the backend already has profiles/auth).
-   Change these before sharing. Passwords are stored as SHA-256 hashes
-   so the plain text isn't sitting in the file, but treat them as
-   low-assurance regardless.
+   Change DEFAULT_LOGIN before sharing.
    ------------------------------------------------------------------- */
 const DEFAULT_LOGIN = { user: "backend", pass: "MoreSpace@2026" };
 
@@ -33,23 +36,19 @@ async function sha256(text) {
 async function verifyLogin(user, pass) {
   const u = (user || "").trim().toLowerCase();
   const p = pass || "";
-  // Default account: verify against the known default pair.
   if (u === DEFAULT_LOGIN.user) {
-    const ok = p === DEFAULT_LOGIN.pass;
-    return ok ? { name: "Backend Team", role: "Cost Sheet", user: u } : null;
+    return p === DEFAULT_LOGIN.pass ? { name: "Backend Team", role: "Cost Sheet", user: u } : null;
   }
-  // Extra accounts (hash-based) — add your own via addAccount() offline.
   const acct = TEAM_ACCOUNTS.find(a => a.user === u);
   if (acct && acct.hash && acct.hash.length === 64) {
-    const h = await sha256(p);
-    if (h === acct.hash) return { name: acct.name, role: acct.role, user: u };
+    if ((await sha256(p)) === acct.hash) return { name: acct.name, role: acct.role, user: u };
   }
   return null;
 }
 
 /* -------------------------------------------------------------------
    2. PROJECT CATALOGUE (running projects — from js/data.js)
-   Base rate is an indicative ₹/sq ft; edit freely in the form.
+   `rate` is an indicative ₹/sq ft basic price; edit freely in the form.
    ------------------------------------------------------------------- */
 const CATALOGUE = [
   { name: "Aparna Zenon",          loc: "Puppalaguda, Nanakramguda",   type: "Apartment", config: "2 & 3 BHK",        size: "1,020 – 2,257 sq ft", rate: 0,     rera: "—" },
@@ -58,7 +57,7 @@ const CATALOGUE = [
   { name: "Vasavi Atlantis",       loc: "Narsingi, Gandipet",          type: "Apartment", config: "2 / 3 / 4 BHK",    size: "1,250 – 3,330 sq ft", rate: 8500,  rera: "P02400003398" },
   { name: "Sukhii Ubuntu",         loc: "Puppalaguda, Khajaguda Hills", type: "Apartment", config: "2 / 3 / 4 BHK",   size: "1,315 – 2,230 sq ft", rate: 9000,  rera: "P02400003677" },
   { name: "Rajapushpa Provinca",   loc: "Nanakramguda Service Road",   type: "Apartment", config: "2 & 3 BHK",        size: "1,370 – 2,660 sq ft", rate: 10370, rera: "P02400002487" },
-  { name: "MoonGlade",             loc: "Kokapet (Exit 18A, ORR)",     type: "Apartment", config: "3 & 4 BHK",        size: "1,400 – 3,950 sq ft", rate: 9000,  rera: "P02400009267" },
+  { name: "MoonGlade",             loc: "Kokapet (Exit 18A, ORR)",     type: "Apartment", config: "3 & 4 BHK",        size: "1,400 – 3,950 sq ft", rate: 6800,  rera: "P02400009267" },
   { name: "Vamsiram Newmark",      loc: "Narsingi – Kokapet (ORR)",    type: "Apartment", config: "4 BHK",            size: "5,200 – 6,500 sq ft", rate: 9980,  rera: "—" },
   { name: "SRIAS IWA",             loc: "Puppalaguda – Nanakramguda",  type: "Apartment", config: "3 – 4.5 BHK",      size: "2,290 – 4,710 sq ft", rate: 9000,  rera: "P02400007210" },
   { name: "ASBL Broadway",         loc: "Financial District",          type: "Apartment", config: "3 & 3.5 BHK",      size: "2,035 – 2,650 sq ft", rate: 0,     rera: "—" },
@@ -68,61 +67,98 @@ const CATALOGUE = [
   { name: "Siras Boat Club",       loc: "Medchal Lake (lakeside)",     type: "Villa",     config: "3 – 5 BHK Villas", size: "2,700 – 6,800 sq ft", rate: 15550, rera: "P02200005072" }
 ];
 
+/* Default charge rates from the reference sheet */
+const DEFAULTS = {
+  floorRiseRate: 20,   // ₹/sq ft per floor
+  floorRiseFrom: 6,    // applicable from this floor onwards
+  eastRate: 50,        // ₹/sq ft
+  cornerRate: 50,      // ₹/sq ft
+  viewRate: 50,        // ₹/sq ft
+  parkingRate: 300000, // per extra car park (1 free by default)
+  amenitiesRate: 350,  // ₹/sq ft
+  clubhouse: 300000,   // lump sum
+  legalDoc: 30000,     // flat (incl. 18% GST)
+  wegiRate: 150,       // ₹/sq ft (possession time)
+  corpusRate: 50,      // ₹/sq ft (possession time)
+  maintMonths: 24,     // maintenance advance
+  maintPerMonth: 4,    // ₹/sq ft per month  (24 × 4 = 96/sq ft)
+  amcGstPct: 18        // GST on AMC
+};
+
 /* -------------------------------------------------------------------
-   3. COST SHEET MATH
-   Telangana-style residential cost sheet. All rates editable.
+   3. COST SHEET MATH  (mirrors the reference sheet exactly)
    ------------------------------------------------------------------- */
 function computeCostSheet(i) {
-  const sba          = num(i.sba);
-  const baseRate     = num(i.baseRate);
-  const floorRise    = num(i.floorRise);   // ₹/sq ft per floor
-  const floor        = num(i.floor);
-  const plc          = num(i.plc);         // ₹/sq ft
-  const amenities    = num(i.amenities);   // lump sum
-  const parkingCount = num(i.parkingCount);
-  const parkingRate  = num(i.parkingRate); // per slot
-  const corpus       = num(i.corpus);      // lump sum
-  const maintMonths  = num(i.maintMonths);
-  const maintRate    = num(i.maintRate);   // ₹/sq ft / month
-  const otherCharges = num(i.otherCharges);
-  const discountPsf  = num(i.discountPsf); // ₹/sq ft off base
-  const gstPct       = num(i.gstPct);
-  const regPct       = num(i.regPct);
+  const sba   = num(i.sba);
+  const floor = num(i.floor);
+  const isEast       = /east/i.test(i.facing || "");
+  const corner       = i.cornerFlat === true || i.cornerFlat === "true" || i.cornerFlat === "yes";
+  const viewPremium  = i.viewPremium === true || i.viewPremium === "true" || i.viewPremium === "yes";
+  const amenitiesOn  = i.amenitiesOn === true || i.amenitiesOn === "true" || i.amenitiesOn === "yes";
+  const clubhouseOn  = i.clubhouseOn === true || i.clubhouseOn === "true" || i.clubhouseOn === "yes";
 
-  const bsp           = (baseRate - discountPsf) * sba;
-  const floorRiseAmt  = floorRise * floor * sba;
-  const plcAmt        = plc * sba;
-  const parkingAmt    = parkingCount * parkingRate;
-  const maintAmt      = maintMonths * maintRate * sba;
+  const basicRate     = num(i.basicRate);
+  const floorRiseRate = num(i.floorRiseRate);
+  const floorRiseFrom = num(i.floorRiseFrom) || 6;
+  const eastRate      = num(i.eastRate);
+  const cornerRate    = num(i.cornerRate);
+  const viewRate      = num(i.viewRate);
+  const extraParking  = num(i.extraParking);
+  const parkingRate   = num(i.parkingRate);
+  const amenitiesRate = num(i.amenitiesRate);
+  const clubhouse     = num(i.clubhouse);
+  const legalDoc      = num(i.legalDoc);
+  const wegiRate      = num(i.wegiRate);
+  const corpusRate    = num(i.corpusRate);
+  const maintMonths   = num(i.maintMonths);
+  const maintPerMonth = num(i.maintPerMonth);
+  const amcGstPct     = num(i.amcGstPct);
 
-  // Construction-linked value (attracts GST at residential rate)
-  const constructionValue = bsp + floorRiseAmt + plcAmt + amenities + parkingAmt + otherCharges;
-  const gstAmt = constructionValue * gstPct / 100;
+  // Floor rise: rate/sft × floors above the free band (from Nth floor onwards)
+  const floorsCharged   = Math.max(floor - (floorRiseFrom - 1), 0);
+  const floorRisePerSft = floorRiseRate * floorsCharged;
 
-  // Agreement / sale value (basis for stamp duty & registration)
-  const agreementValue = constructionValue;
-  const regAmt = agreementValue * regPct / 100;
+  const basic     = basicRate * sba;
+  const floorRise = floorRisePerSft * sba;
+  const east      = isEast ? eastRate * sba : 0;
+  const cornerAmt = corner ? cornerRate * sba : 0;
+  const view      = viewPremium ? viewRate * sba : 0;
+  const parking   = extraParking * parkingRate;
+  const amenities = amenitiesOn ? amenitiesRate * sba : 0;
+  const club      = clubhouseOn ? clubhouse : 0;
 
-  // Corpus + maintenance usually GST at 18% but kept simple / separate
-  const oneTime = corpus + maintAmt;
+  // Main schedule — all rows always shown (matches the reference sheet)
+  const mainRows = [
+    { sno: 1, label: "Basic Price – Per Sq. Feet",                                              rate: basicRate,       amount: basic },
+    { sno: 2, label: `Floor Rise Charges (₹${n2(floorRiseRate)}/sq ft/floor from ${ordinal(floorRiseFrom)} floor onwards)`, rate: floorRisePerSft, amount: floorRise },
+    { sno: 3, label: `East Facing Charges (₹${n2(eastRate)}/sq ft)`,                             rate: eastRate,        amount: east },
+    { sno: 4, label: `Corner Flat Charges (₹${n2(cornerRate)}/sq ft)`,                           rate: cornerRate,      amount: cornerAmt },
+    { sno: 5, label: `View Premium Charges (₹${n2(viewRate)}/sq ft)`,                            rate: viewRate,        amount: view },
+    { sno: 6, label: `Car Parking (1 free; extra @ ${inr(parkingRate)} × ${n2(extraParking)})`, rate: parkingRate,     amount: parking },
+    { sno: 7, label: `Amenities (₹${n2(amenitiesRate)}/sq ft)`,                                  rate: amenitiesRate,   amount: amenities },
+    { sno: 8, label: "Club House Amenities",                                                     rate: clubhouse,       amount: club },
+    { sno: 9, label: "Legal & Documentation Charges (incl. 18% GST)",                            rate: legalDoc,        amount: legalDoc }
+  ];
 
-  const grandTotal = constructionValue + gstAmt + regAmt + oneTime;
+  const totalSale = basic + floorRise + east + cornerAmt + view + parking + amenities + club + legalDoc;
 
-  const rows = [
-    { label: `Basic Sale Price (${inr(baseRate - discountPsf)}/sq ft × ${n2(sba)} sq ft)`, amount: bsp },
-    { label: `Floor Rise (${inr(floorRise)}/sq ft × floor ${n2(floor)})`, amount: floorRiseAmt, hideIf: floorRiseAmt === 0 },
-    { label: `Preferential Location Charges (${inr(plc)}/sq ft)`, amount: plcAmt, hideIf: plcAmt === 0 },
-    { label: "Amenities / Clubhouse", amount: amenities, hideIf: amenities === 0 },
-    { label: `Car Parking (${n2(parkingCount)} × ${inr(parkingRate)})`, amount: parkingAmt, hideIf: parkingAmt === 0 },
-    { label: "Other Charges", amount: otherCharges, hideIf: otherCharges === 0 },
-    { label: "Sub-total (Agreement Value)", amount: agreementValue, subtotal: true },
-    { label: `GST @ ${n2(gstPct)}%`, amount: gstAmt },
-    { label: `Stamp Duty & Registration @ ${n2(regPct)}%`, amount: regAmt },
-    { label: "Corpus Fund", amount: corpus, hideIf: corpus === 0 },
-    { label: `Maintenance Advance (${n2(maintMonths)} mo × ${inr(maintRate)}/sq ft)`, amount: maintAmt, hideIf: maintAmt === 0 }
-  ].filter(r => !r.hideIf);
+  // Possession-time charges
+  const maintPerSft = maintMonths * maintPerMonth; // e.g. 24 × 4 = 96
+  const wegi   = wegiRate * sba;
+  const corpus = corpusRate * sba;
+  const maint  = maintPerSft * sba;
+  const amcGst = maint * amcGstPct / 100;
 
-  return { rows, grandTotal, sba, allInRate: sba ? grandTotal / sba : 0 };
+  const possessionRows = [
+    { label: "W.E.G.I (Water, Electricity, Gas & Infrastructure)", rate: wegiRate,    amount: wegi },
+    { label: "Corpus Fund",                                        rate: corpusRate,  amount: corpus },
+    { label: `${n2(maintMonths)} Months Maintenance (₹${n2(maintPerMonth)}/sq ft/month)`, rate: maintPerSft, amount: maint },
+    { label: `GST @ ${n2(amcGstPct)}% on AMC`,                     rate: null,        amount: amcGst }
+  ];
+
+  const netTotal = totalSale + wegi + corpus + maint + amcGst;
+
+  return { mainRows, totalSale, possessionRows, netTotal, sba, allInRate: sba ? netTotal / sba : 0 };
 }
 
 /* -------------------------------------------------------------------
@@ -133,3 +169,4 @@ function fmt(n) { return new Intl.NumberFormat("en-IN").format(Math.round(n)); }
 function n2(n) { return new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(n); } // exact rates/%, no rounding
 function inr(n) { return "₹" + fmt(n); }
 function crores(n) { return "₹" + (n / 1e7).toFixed(2) + " Cr"; }
+function ordinal(n) { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
