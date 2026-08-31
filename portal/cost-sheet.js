@@ -18,6 +18,21 @@
      • wire it to Supabase Auth (the backend already has profiles/auth).
    Change DEFAULT_LOGIN before sharing.
    ------------------------------------------------------------------- */
+/* -------------------------------------------------------------------
+   0. BRAND / LETTERHEAD (shown on screen + printed cost sheet)
+   Swap `logo` for a specific developer/builder logo if needed; the
+   wordmark text is used automatically if the image can't load.
+   ------------------------------------------------------------------- */
+const BRAND = {
+  name: "More Space",
+  logo: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=280,fit=crop,q=95/AMq19Z68OEtq90DG/untitled-design-A85V2Gln5jFKZkow.png",
+  website: "www.morespace.ai",
+  websiteUrl: "https://morespace.ai",
+  phone: "+91 70751 68306",
+  email: "info@morespace.com",
+  address: "Neopolis Infra, Prashanthi Hills, Gachibowli, Hyderabad 500032"
+};
+
 const DEFAULT_LOGIN = { user: "backend", pass: "MoreSpace@2026" };
 
 /* Extra team accounts, verified by SHA-256 hash so plaintext isn't in the

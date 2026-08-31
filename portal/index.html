@@ -59,8 +59,9 @@
     @media(max-width:520px){.row,.row3{grid-template-columns:1fr}}
     fieldset{border:0;padding:0;margin:0 0 6px}
     legend{font-family:"Outfit";font-weight:600;font-size:13px;color:var(--indigo);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--line);width:100%}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-    .actions .btn{width:auto}
+    .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+    .actions .btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+    @media(min-width:560px){.actions{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
     /* Cost sheet preview */
     .sheet{background:#fff}
@@ -86,12 +87,40 @@
     .stamp{margin-top:16px;font-size:11px;color:var(--muted);line-height:1.6;border-top:1px dashed var(--line);padding-top:12px}
     .stamp b{color:var(--charcoal)}
 
+    /* Letterhead (logo + website) */
+    .letterhead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+    .lh-brand{display:flex;flex-direction:column;gap:4px}
+    .lh-logo{height:46px;width:auto;object-fit:contain}
+    .lh-logo.bad{display:none}
+    .lh-word{display:none;font-family:"Outfit";font-weight:700;font-size:22px;color:var(--indigo);letter-spacing:-.3px}
+    .lh-word b{color:var(--blue)}
+    .lh-logo.bad ~ .lh-word{display:inline-block}
+    .lh-web{font-size:12px}
+    .lh-web a{color:var(--blue);text-decoration:none}
+    .lh-doc{text-align:right}
+    .lh-doc h3{color:var(--indigo);font-size:20px}
+    .lh-doc .muted{color:var(--muted);font-size:12px}
+    .sheet-foot{margin-top:14px;border-top:2px solid var(--indigo);padding-top:8px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .sheet-foot b{color:var(--charcoal)}
+
+    /* A4 print */
+    @page{size:A4;margin:12mm}
     @media print{
-      body{background:#fff}
+      html,body{background:#fff}
       header.topbar,.panel.form,.actions,.no-print{display:none!important}
+      .wrap{max-width:none;padding:0;margin:0}
       .grid{display:block}
       .panel{box-shadow:none;border:0;padding:0}
       .app{display:block!important}
+      .sheet{font-size:10.5px;color:#000}
+      .sheet .lh-doc h3{font-size:18px}
+      .lh-logo{height:52px}
+      table td,table th{padding:5.5px 4px}
+      tr.net td{font-size:15px}
+      .stamp{margin-top:10px}
+      .sheet-foot{margin-top:10px}
+      /* avoid breaking the schedule across pages */
+      table,tr,.sheet-head,.sheet-foot{break-inside:avoid}
     }
   </style>
 </head>
@@ -269,9 +298,17 @@
       const u = (label,val) => `<div class="u"><span>${label}</span><b>${val||"—"}</b></div>`;
       $("sheet").innerHTML = `
         <div class="sheet-head">
-          <div class="top">
-            <div><h3>Cost Sheet</h3><div class="meta" style="color:var(--muted);font-size:12px">More Space · ${today}</div></div>
-            <div class="proj">${escapeHtml(p.name)}<div style="font-weight:400;color:var(--muted);font-size:12px">${escapeHtml(p.loc)}${p.rera&&p.rera!=="—"?" · RERA "+p.rera:""}</div></div>
+          <div class="letterhead">
+            <div class="lh-brand">
+              <img class="lh-logo" src="${BRAND.logo}" alt="${escapeHtml(BRAND.name)} logo" onerror="this.classList.add('bad')">
+              <span class="lh-word">more<b>space</b></span>
+              <span class="lh-web"><a href="${BRAND.websiteUrl}" target="_blank" rel="noopener">${escapeHtml(BRAND.website)}</a></span>
+            </div>
+            <div class="lh-doc">
+              <h3>Cost Sheet</h3>
+              <div class="muted">${today}</div>
+              <div class="muted"><b style="color:var(--charcoal)">${escapeHtml(p.name)}</b> · ${escapeHtml(p.loc)}${p.rera&&p.rera!=="—"?" · RERA "+p.rera:""}</div>
+            </div>
           </div>
           <div class="unitgrid">
             ${u("Customer", escapeHtml(i.customer))}
@@ -300,6 +337,10 @@
           <b>Only Corpus & Maintenance are payable at the time of possession.</b><br>
           Registration & GST as per prevailing government value (charged separately, not included above).
           Indicative estimate for internal use — subject to developer confirmation and applicable taxes. Not a price quotation or offer.
+        </div>
+        <div class="sheet-foot">
+          <span><b>${escapeHtml(BRAND.name)}</b> · ${escapeHtml(BRAND.address)}</span>
+          <span><a href="${BRAND.websiteUrl}" target="_blank" rel="noopener">${escapeHtml(BRAND.website)}</a> · ${escapeHtml(BRAND.phone)} · ${escapeHtml(BRAND.email)}</span>
         </div>`;
     }
 
