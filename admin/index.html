@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>More Space — Cost Sheet Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --indigo:#2D236D; --blue:#0300C7; --charcoal:#1D1E20; --green:#009100;
+      --line:#e6e7ee; --muted:#6b6d80; --bg:#f4f5fa; --card:#fff;
+      --shadow:0 10px 40px rgba(45,35,109,.10);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--charcoal);font-family:"DM Sans",system-ui,sans-serif;line-height:1.5}
+    h1,h2,h3{font-family:"Outfit",sans-serif;margin:0}
+    a{color:var(--blue)}
+    .wrap{max-width:1240px;margin:0 auto;padding:24px}
+
+    header.topbar{background:var(--indigo);color:#fff}
+    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;gap:16px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#6a63ff);display:grid;place-items:center;font-family:"Outfit";font-weight:800;color:#fff}
+    .brand h1{font-size:18px;letter-spacing:.2px}
+    .brand small{display:block;font-family:"DM Sans";font-weight:400;opacity:.75;font-size:12px}
+    .who{font-size:13px;opacity:.9;display:flex;align-items:center;gap:12px}
+    .who button{background:rgba(255,255,255,.14);border:0;color:#fff;padding:7px 12px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px}
+    .who button:hover{background:rgba(255,255,255,.24)}
+
+    .gate{position:fixed;inset:0;background:linear-gradient(135deg,#221a55,#0300C7);display:grid;place-items:center;z-index:50;padding:24px}
+    .gate .card{background:#fff;border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:400px;padding:32px}
+    .gate h2{font-size:22px;color:var(--indigo)}
+    .gate p.sub{color:var(--muted);font-size:14px;margin:6px 0 22px}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+    .field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff}
+    .field input:focus,.field select:focus{outline:2px solid rgba(3,0,199,.25);border-color:var(--blue)}
+    .checkline{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:6px}
+    .checkline input{width:auto}
+    .btn{background:var(--blue);color:#fff;border:0;border-radius:9px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;width:100%}
+    .btn:hover{filter:brightness(1.08)}
+    .btn.secondary{background:#eef0fb;color:var(--indigo)}
+    .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--charcoal);width:auto}
+    .err{color:#c0392b;font-size:13px;min-height:18px;margin-top:4px}
+    .hint{font-size:12px;color:var(--muted);background:#f7f8fd;border:1px dashed var(--line);border-radius:9px;padding:10px 12px;margin-top:14px}
+    .hint code{background:#eceefb;padding:1px 6px;border-radius:5px;font-size:12px}
+
+    .app{display:none}
+    .grid{display:grid;grid-template-columns:minmax(340px,.95fr) minmax(420px,1.2fr);gap:24px;align-items:start}
+    @media(max-width:960px){.grid{grid-template-columns:1fr}}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px}
+    .panel h2{font-size:16px;color:var(--indigo);margin-bottom:4px}
+    .panel .desc{color:var(--muted);font-size:13px;margin-bottom:18px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    @media(max-width:520px){.row,.row3{grid-template-columns:1fr}}
+    fieldset{border:0;padding:0;margin:0 0 6px}
+    legend{font-family:"Outfit";font-weight:600;font-size:13px;color:var(--indigo);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding-top:12px;border-top:1px solid var(--line);width:100%}
+    .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+    .actions .btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+    @media(min-width:560px){.actions{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+    /* Cost sheet preview */
+    .sheet{background:#fff}
+    .sheet .sheet-head{border-bottom:2px solid var(--indigo);padding-bottom:12px;margin-bottom:12px}
+    .sheet .sheet-head .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+    .sheet .sheet-head h3{color:var(--indigo);font-size:20px}
+    .sheet .proj{font-family:"Outfit";font-weight:700;color:var(--charcoal);font-size:16px;text-align:right}
+    .unitgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 14px;margin-top:12px;font-size:12.5px}
+    @media(max-width:520px){.unitgrid{grid-template-columns:repeat(2,1fr)}}
+    .unitgrid .u span{color:var(--muted);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+    .unitgrid .u b{font-weight:600}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+    table th{text-align:left;font-family:"Outfit";font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:6px 4px;border-bottom:1px solid var(--line)}
+    table th.amt,table td.amt{text-align:right}
+    table th.rate,table td.rate{text-align:right;white-space:nowrap}
+    table td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+    table td.sno{color:var(--muted);width:26px}
+    table td.amt,table td.rate{font-variant-numeric:tabular-nums;white-space:nowrap}
+    tr.grand td{font-weight:700;background:#f7f8fd}
+    tr.section td{font-family:"Outfit";font-weight:600;color:var(--indigo);font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding-top:14px;border-bottom:0}
+    tr.net td{font-family:"Outfit";font-weight:800;font-size:16px;color:var(--green);border-top:2px solid var(--indigo);border-bottom:0;padding-top:12px}
+    .allin{margin-top:8px;font-size:13px;color:var(--muted);text-align:right}
+    .stamp{margin-top:16px;font-size:11px;color:var(--muted);line-height:1.6;border-top:1px dashed var(--line);padding-top:12px}
+    .stamp b{color:var(--charcoal)}
+
+    /* Letterhead (logo + website) */
+    .letterhead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+    .lh-brand{display:flex;flex-direction:column;gap:4px}
+    .lh-logo{height:46px;width:auto;object-fit:contain}
+    .lh-logo.bad{display:none}
+    .lh-word{display:none;font-family:"Outfit";font-weight:700;font-size:22px;color:var(--indigo);letter-spacing:-.3px}
+    .lh-word b{color:var(--blue)}
+    .lh-logo.bad ~ .lh-word{display:inline-block}
+    .lh-web{font-size:12px}
+    .lh-web a{color:var(--blue);text-decoration:none}
+    .lh-doc{text-align:right}
+    .lh-doc h3{color:var(--indigo);font-size:20px}
+    .lh-doc .muted{color:var(--muted);font-size:12px}
+    .sheet-foot{margin-top:14px;border-top:2px solid var(--indigo);padding-top:8px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .sheet-foot b{color:var(--charcoal)}
+
+    /* A4 print */
+    @page{size:A4;margin:12mm}
+    @media print{
+      html,body{background:#fff}
+      header.topbar,.panel.form,.actions,.no-print{display:none!important}
+      .wrap{max-width:none;padding:0;margin:0}
+      .grid{display:block}
+      .panel{box-shadow:none;border:0;padding:0}
+      .app{display:block!important}
+      .sheet{font-size:10.5px;color:#000}
+      .sheet .lh-doc h3{font-size:18px}
+      .lh-logo{height:52px}
+      table td,table th{padding:5.5px 4px}
+      tr.net td{font-size:15px}
+      .stamp{margin-top:10px}
+      .sheet-foot{margin-top:10px}
+      /* avoid breaking the schedule across pages */
+      table,tr,.sheet-head,.sheet-foot{break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= LOGIN GATE ================= -->
+  <div class="gate" id="gate">
+    <div class="card">
+      <div class="brand" style="margin-bottom:18px">
+        <div class="logo">MS</div>
+        <div><h1 style="color:var(--indigo);font-size:18px">More Space</h1>
+        <small style="color:var(--muted)">Backend Team Portal</small></div>
+      </div>
+      <h2>Cost Sheet Login</h2>
+      <p class="sub">Internal tool — team access only.</p>
+      <form id="loginForm">
+        <div class="field"><label for="u">Email</label><input id="u" type="email" autocomplete="username" placeholder="you@morespace.ai" required /></div>
+        <div class="field"><label for="p">Password</label><input id="p" type="password" autocomplete="current-password" placeholder="••••••••" required /></div>
+        <div class="err" id="loginErr"></div>
+        <button class="btn" type="submit">Sign in</button>
+      </form>
+      <div class="hint">
+        <b>Team logins</b><br>
+        <code>backend@morespace.ai</code> / <code>MoreSpace@2026</code><br>
+        <code>sales@morespace.ai</code> / <code>Sales@2026</code><br>
+        Change these in <code>admin/cost-sheet.js</code> before sharing widely.
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= APP ================= -->
+  <header class="topbar no-print">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">MS</div>
+        <div><h1>More Space — Cost Sheet</h1><small>Backend Team Portal</small></div>
+      </div>
+      <div class="who"><span id="whoLabel"></span><button id="logoutBtn" type="button">Log out</button></div>
+    </div>
+  </header>
+
+  <main class="wrap app" id="app">
+    <div class="grid">
+      <!-- ---------- FORM ---------- -->
+      <section class="panel form">
+        <h2>Generate a cost sheet</h2>
+        <p class="desc">Format & default rates follow the team reference sheet. Pick a project to auto-fill the basic rate — everything stays editable.</p>
+
+        <fieldset>
+          <legend>Project & customer</legend>
+          <div class="field"><label for="project">Project</label><select id="project"></select></div>
+          <div class="row">
+            <div class="field"><label for="customer">Customer name</label><input id="customer" placeholder="e.g. Mr. Rao" /></div>
+            <div class="field"><label for="coapplicant">Co-applicant</label><input id="coapplicant" placeholder="optional" /></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Unit</legend>
+          <div class="row3">
+            <div class="field"><label for="tower">Tower</label><input id="tower" placeholder="F" /></div>
+            <div class="field"><label for="apartment">Apartment no.</label><input id="apartment" placeholder="404" /></div>
+            <div class="field"><label for="floor">Floor</label><input id="floor" inputmode="decimal" value="40" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="facing">Facing</label>
+              <select id="facing"><option>West</option><option>East</option><option>North</option><option>South</option><option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option></select>
+            </div>
+            <div class="field"><label for="sba">Saleable area (sq ft)</label><input id="sba" inputmode="decimal" value="2320" /></div>
+          </div>
+          <label class="checkline"><input type="checkbox" id="cornerFlat" checked /> Corner flat</label>
+          <label class="checkline"><input type="checkbox" id="viewPremium" /> View premium</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Price & charges (₹/sq ft)</legend>
+          <div class="row">
+            <div class="field"><label for="basicRate">Basic price /sq ft</label><input id="basicRate" inputmode="decimal" value="6800" /></div>
+            <div class="field"><label for="floorRiseRate">Floor rise /sq ft/floor</label><input id="floorRiseRate" inputmode="decimal" value="20" /></div>
+          </div>
+          <div class="row3">
+            <div class="field"><label for="floorRiseFrom">Floor rise from floor</label><input id="floorRiseFrom" inputmode="decimal" value="6" /></div>
+            <div class="field"><label for="eastRate">East facing /sq ft</label><input id="eastRate" inputmode="decimal" value="50" /></div>
+            <div class="field"><label for="cornerRate">Corner /sq ft</label><input id="cornerRate" inputmode="decimal" value="50" /></div>
+          </div>
+          <div class="field"><label for="viewRate">View premium /sq ft</label><input id="viewRate" inputmode="decimal" value="50" /></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Parking, amenities & legal</legend>
+          <div class="row">
+            <div class="field"><label for="extraParking">Extra car parks (1 free)</label><input id="extraParking" inputmode="decimal" value="1" /></div>
+            <div class="field"><label for="parkingRate">Rate / extra park</label><input id="parkingRate" inputmode="decimal" value="300000" /></div>
+          </div>
+          <label class="checkline"><input type="checkbox" id="amenitiesOn" /> Charge amenities</label>
+          <div class="row">
+            <div class="field"><label for="amenitiesRate">Amenities /sq ft</label><input id="amenitiesRate" inputmode="decimal" value="350" /></div>
+            <div class="field"><label for="legalDoc">Legal & Documentation</label><input id="legalDoc" inputmode="decimal" value="30000" /></div>
+          </div>
+          <label class="checkline"><input type="checkbox" id="clubhouseOn" /> Charge clubhouse</label>
+          <div class="field"><label for="clubhouse">Club house amenities</label><input id="clubhouse" inputmode="decimal" value="300000" /></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Possession-time charges</legend>
+          <div class="row">
+            <div class="field"><label for="wegiRate">W.E.G.I /sq ft</label><input id="wegiRate" inputmode="decimal" value="150" /></div>
+            <div class="field"><label for="corpusRate">Corpus fund /sq ft</label><input id="corpusRate" inputmode="decimal" value="50" /></div>
+          </div>
+          <div class="row3">
+            <div class="field"><label for="maintMonths">Maintenance months</label><input id="maintMonths" inputmode="decimal" value="24" /></div>
+            <div class="field"><label for="maintPerMonth">Maint /sq ft/month</label><input id="maintPerMonth" inputmode="decimal" value="4" /></div>
+            <div class="field"><label for="amcGstPct">GST on AMC %</label><input id="amcGstPct" inputmode="decimal" value="18" /></div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button class="btn" id="genBtn" type="button">Generate</button>
+          <button class="btn secondary" id="printBtn" type="button">Print / PDF</button>
+          <button class="btn ghost" id="csvBtn" type="button">Export CSV</button>
+          <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+        </div>
+      </section>
+
+      <!-- ---------- PREVIEW ---------- -->
+      <section class="panel">
+        <div class="sheet" id="sheet"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="cost-sheet.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const SS_KEY = "ms_portal_session";
+
+    function showApp(session){
+      $("gate").style.display = "none";
+      $("app").style.display = "block";
+      $("whoLabel").textContent = session.name + " · " + session.role;
+      initApp();
+    }
+    (function restore(){
+      try{ const s = JSON.parse(sessionStorage.getItem(SS_KEY)||"null"); if(s&&s.user) showApp(s); }catch(e){}
+    })();
+
+    $("loginForm").addEventListener("submit", async e => {
+      e.preventDefault(); $("loginErr").textContent = "";
+      const session = await verifyLogin($("u").value, $("p").value);
+      if(!session){ $("loginErr").textContent = "Invalid email or password."; return; }
+      try{ sessionStorage.setItem(SS_KEY, JSON.stringify(session)); }catch(e){}
+      showApp(session);
+    });
+    $("logoutBtn").addEventListener("click", () => { try{ sessionStorage.removeItem(SS_KEY); }catch(e){} location.reload(); });
+
+    let appReady = false;
+    function readInputs(){
+      const ids = ["customer","coapplicant","tower","apartment","floor","facing","sba",
+        "basicRate","floorRiseRate","floorRiseFrom","eastRate","cornerRate","viewRate",
+        "extraParking","parkingRate","amenitiesRate","legalDoc","clubhouse",
+        "wegiRate","corpusRate","maintMonths","maintPerMonth","amcGstPct"];
+      const o = {}; ids.forEach(k => o[k] = $(k).value);
+      ["cornerFlat","viewPremium","amenitiesOn","clubhouseOn"].forEach(k => o[k] = $(k).checked);
+      return o;
+    }
+    function currentProject(){ return CATALOGUE[$("project").selectedIndex] || CATALOGUE[0]; }
+    function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+    function render(){
+      const i = readInputs(); const p = currentProject(); const cs = computeCostSheet(i);
+      const today = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+      const rate = r => r === null ? "" : inr(r);
+      const mainHtml = cs.mainRows.map(r =>
+        `<tr><td class="sno">${r.sno}</td><td>${escapeHtml(r.label)}</td><td class="rate">${rate(r.rate)}</td><td class="amt">${inr(r.amount)}</td></tr>`).join("");
+      const possHtml = cs.possessionRows.map(r =>
+        `<tr><td class="sno"></td><td>${escapeHtml(r.label)}</td><td class="rate">${rate(r.rate)}</td><td class="amt">${inr(r.amount)}</td></tr>`).join("");
+      const u = (label,val) => `<div class="u"><span>${label}</span><b>${val||"—"}</b></div>`;
+      $("sheet").innerHTML = `
+        <div class="sheet-head">
+          <div class="letterhead">
+            <div class="lh-brand">
+              <img class="lh-logo" src="${BRAND.logo}" alt="${escapeHtml(BRAND.name)} logo" onerror="this.classList.add('bad')">
+              <span class="lh-word">more<b>space</b></span>
+              <span class="lh-web"><a href="${BRAND.websiteUrl}" target="_blank" rel="noopener">${escapeHtml(BRAND.website)}</a></span>
+            </div>
+            <div class="lh-doc">
+              <h3>Cost Sheet</h3>
+              <div class="muted">${today}</div>
+              <div class="muted"><b style="color:var(--charcoal)">${escapeHtml(p.name)}</b> · ${escapeHtml(p.loc)}${p.rera&&p.rera!=="—"?" · RERA "+p.rera:""}</div>
+            </div>
+          </div>
+          <div class="unitgrid">
+            ${u("Customer", escapeHtml(i.customer))}
+            ${u("Co-applicant", escapeHtml(i.coapplicant))}
+            ${u("Tower", escapeHtml(i.tower))}
+            ${u("Apartment", escapeHtml(i.apartment))}
+            ${u("Facing", escapeHtml(i.facing))}
+            ${u("Floor", fmt(num(i.floor)))}
+            ${u("Corner flat", i.cornerFlat?"Yes":"No")}
+            ${u("View premium", i.viewPremium?"Yes":"No")}
+            ${u("Saleable area", fmt(cs.sba)+" sq ft")}
+          </div>
+        </div>
+        <table>
+          <thead><tr><th class="sno">#</th><th>Particulars</th><th class="rate">Rate (₹)</th><th class="amt">Amount (₹)</th></tr></thead>
+          <tbody>
+            ${mainHtml}
+            <tr class="grand"><td></td><td>Total Sale Consideration of Unit</td><td class="rate"></td><td class="amt">${inr(cs.totalSale)}</td></tr>
+            <tr class="section"><td></td><td colspan="3">Payable at possession</td></tr>
+            ${possHtml}
+            <tr class="net"><td></td><td>Net Total Costing</td><td class="rate"></td><td class="amt">${inr(cs.netTotal)}</td></tr>
+          </tbody>
+        </table>
+        <div class="allin">≈ ${crores(cs.netTotal)} &nbsp;·&nbsp; all-in ₹${fmt(cs.allInRate)}/sq ft</div>
+        <div class="stamp">
+          <b>Only Corpus & Maintenance are payable at the time of possession.</b><br>
+          Registration & GST as per prevailing government value (charged separately, not included above).
+          Indicative estimate for internal use — subject to developer confirmation and applicable taxes. Not a price quotation or offer.
+        </div>
+        <div class="sheet-foot">
+          <span><b>${escapeHtml(BRAND.name)}</b> · ${escapeHtml(BRAND.address)}</span>
+          <span><a href="${BRAND.websiteUrl}" target="_blank" rel="noopener">${escapeHtml(BRAND.website)}</a> · ${escapeHtml(BRAND.phone)} · ${escapeHtml(BRAND.email)}</span>
+        </div>`;
+    }
+
+    function initApp(){
+      if(appReady) return; appReady = true;
+      const sel = $("project");
+      sel.innerHTML = CATALOGUE.map(p => `<option>${p.name} — ${p.loc}</option>`).join("");
+      // default to MoonGlade (matches the reference sample)
+      const mg = CATALOGUE.findIndex(p => /moonglade/i.test(p.name)); if(mg>=0) sel.selectedIndex = mg;
+      sel.addEventListener("change", () => { const p = currentProject(); if(p.rate) $("basicRate").value = p.rate; render(); });
+      document.querySelectorAll("#app input, #app select").forEach(el => el.addEventListener("input", render));
+      $("genBtn").addEventListener("click", render);
+      $("printBtn").addEventListener("click", () => window.print());
+      $("resetBtn").addEventListener("click", () => location.reload());
+      $("csvBtn").addEventListener("click", exportCsv);
+      if(currentProject().rate) $("basicRate").value = currentProject().rate;
+      render();
+    }
+
+    function exportCsv(){
+      const i = readInputs(); const p = currentProject(); const cs = computeCostSheet(i);
+      const rateCell = r => r === null ? "" : Math.round(r);
+      const lines = [["More Space — Cost Sheet"],["Project",p.name],["Location",p.loc],
+        ["Customer",i.customer||""],["Co-applicant",i.coapplicant||""],["Tower",i.tower||""],["Apartment",i.apartment||""],
+        ["Facing",i.facing||""],["Floor",num(i.floor)],["Corner flat",i.cornerFlat?"Yes":"No"],["View premium",i.viewPremium?"Yes":"No"],
+        ["Saleable area (sq ft)",cs.sba],[""],
+        ["S.No","Particulars","Rate (INR)","Amount (INR)"]];
+      cs.mainRows.forEach(r => lines.push([r.sno, r.label, rateCell(r.rate), Math.round(r.amount)]));
+      lines.push(["","Total Sale Consideration of Unit","",Math.round(cs.totalSale)]);
+      lines.push([""],["Payable at possession"]);
+      cs.possessionRows.forEach(r => lines.push(["", r.label, rateCell(r.rate), Math.round(r.amount)]));
+      lines.push(["","Net Total Costing","",Math.round(cs.netTotal)]);
+      lines.push(["","All-in rate (/sq ft)","",Math.round(cs.allInRate)]);
+      const csv = lines.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv],{type:"text/csv"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `cost-sheet_${p.name.replace(/\s+/g,"-").toLowerCase()}.csv`;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  </script>
+</body>
+</html>
