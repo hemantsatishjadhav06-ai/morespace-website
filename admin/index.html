@@ -137,13 +137,15 @@
       <h2>Cost Sheet Login</h2>
       <p class="sub">Internal tool — team access only.</p>
       <form id="loginForm">
-        <div class="field"><label for="u">Username</label><input id="u" autocomplete="username" placeholder="username" required /></div>
+        <div class="field"><label for="u">Email</label><input id="u" type="email" autocomplete="username" placeholder="you@morespace.ai" required /></div>
         <div class="field"><label for="p">Password</label><input id="p" type="password" autocomplete="current-password" placeholder="••••••••" required /></div>
         <div class="err" id="loginErr"></div>
         <button class="btn" type="submit">Sign in</button>
       </form>
       <div class="hint">
-        <b>Team logins</b> — <code>backend</code> / <code>MoreSpace@2026</code> · <code>sales</code> / <code>Sales@2026</code>.<br>
+        <b>Team logins</b><br>
+        <code>backend@morespace.ai</code> / <code>MoreSpace@2026</code><br>
+        <code>sales@morespace.ai</code> / <code>Sales@2026</code><br>
         Change these in <code>admin/cost-sheet.js</code> before sharing widely.
       </div>
     </div>
@@ -268,7 +270,7 @@
     $("loginForm").addEventListener("submit", async e => {
       e.preventDefault(); $("loginErr").textContent = "";
       const session = await verifyLogin($("u").value, $("p").value);
-      if(!session){ $("loginErr").textContent = "Invalid username or password."; return; }
+      if(!session){ $("loginErr").textContent = "Invalid email or password."; return; }
       try{ sessionStorage.setItem(SS_KEY, JSON.stringify(session)); }catch(e){}
       showApp(session);
     });

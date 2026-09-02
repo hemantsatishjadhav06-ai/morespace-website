@@ -33,15 +33,15 @@ const BRAND = {
   address: "Neopolis Infra, Prashanthi Hills, Gachibowli, Hyderabad 500032"
 };
 
-/* Team accounts, verified by SHA-256 hash so no plaintext password sits in
-   this file. Two logins are provisioned:
-       backend / MoreSpace@2026   (Backend Team)
-       sales   / Sales@2026       (Sales Team)
+/* Team accounts (email + password), verified by SHA-256 hash so no plaintext
+   password sits in this file. Two logins are provisioned:
+       backend@morespace.ai / MoreSpace@2026   (Backend Team)
+       sales@morespace.ai   / Sales@2026       (Sales Team)
    To change one, run in the browser console:  copy(await sha256("newpass"))
-   and replace the matching `hash` below (usernames must be lowercase). */
+   and replace the matching `hash` below (emails must be lowercase). */
 const TEAM_ACCOUNTS = [
-  { user: "backend", name: "Backend Team", role: "Cost Sheet", hash: "aeae8cef432e0dd99731d1bfab7b6cdbdfe152ddbc36f2db84876587abf0e201" },
-  { user: "sales",   name: "Sales Team",   role: "Cost Sheet", hash: "65f478a5738e3437839f9767c0600050ffd4429f1cb521d76f22351124813020" }
+  { user: "backend@morespace.ai", name: "Backend Team", role: "Cost Sheet", hash: "aeae8cef432e0dd99731d1bfab7b6cdbdfe152ddbc36f2db84876587abf0e201" },
+  { user: "sales@morespace.ai",   name: "Sales Team",   role: "Cost Sheet", hash: "65f478a5738e3437839f9767c0600050ffd4429f1cb521d76f22351124813020" }
 ];
 
 async function sha256(text) {

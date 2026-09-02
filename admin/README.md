@@ -25,10 +25,10 @@ Live: **https://morespace.netlify.app/admin/**
 
 ## Logins
 
-| Username  | Password         | Role         |
-|-----------|------------------|--------------|
-| `backend` | `MoreSpace@2026` | Backend Team |
-| `sales`   | `Sales@2026`     | Sales Team   |
+| Email                  | Password         | Role         |
+|------------------------|------------------|--------------|
+| `backend@morespace.ai` | `MoreSpace@2026` | Backend Team |
+| `sales@morespace.ai`   | `Sales@2026`     | Sales Team   |
 
 Passwords are stored as SHA-256 hashes in `TEAM_ACCOUNTS` (no plaintext in the
 file). To change one, run `copy(await sha256("newpass"))` in the browser console
