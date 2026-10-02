@@ -131,3 +131,13 @@ dashboard. On approval and publish, SM Manager:
 **One-time setup:** add a repository secret `NETLIFY_TOKEN` (a Netlify personal
 access token with access to the `morespace` site): Settings → Secrets and
 variables → Actions → New repository secret.
+
+## Property cost calculator
+
+The existing live `/admin/` tool is included in this repository and linked as
+**Cost Calculator**. It is a public, browser-only estimate calculator with no
+team accounts or stored customer records. Its 14-project catalogue and charge
+math are preserved; indicative rates must be confirmed with the developer.
+Invalid numeric inputs clear the estimate and disable export/print. Projects
+without a rate require a new entry, decimals are preserved, and CSV exports
+keep customer text from running as spreadsheet formulas. See `admin/readme.md`.
