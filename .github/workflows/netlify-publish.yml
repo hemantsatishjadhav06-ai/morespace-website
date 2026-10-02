@@ -1,0 +1,41 @@
+name: publish · approved blog → Netlify (morespace.netlify.app)
+# Dispatched by SM Manager after the owner approves a blog post in the
+# dashboard and SM Manager commits it under blog/. Never runs on its own:
+# nothing reaches the live site without that approval.
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Post slug to smoke-test after deploy (optional)"
+        required: false
+        default: ""
+permissions:
+  contents: read
+concurrency:
+  group: netlify-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Build full site (live snapshot + approved blog overlay)
+        env:
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+        run: bash scripts/build_mirror.sh
+      - name: Zip
+        run: ( cd mirror && zip -qr ../site.zip . ) && ls -la site.zip
+      - name: Deploy ZIP to Netlify
+        env:
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+        run: node scripts/deploy_zip.js
+      - name: Smoke test
+        run: |
+          set -e
+          curl -sfL https://morespace.netlify.app/ | grep -q "more" && echo "OK home"
+          if [ -n "${{ github.event.inputs.slug }}" ]; then
+            curl -sfL "https://morespace.netlify.app/blog/${{ github.event.inputs.slug }}.html" > /dev/null && echo "OK post"
+          fi
