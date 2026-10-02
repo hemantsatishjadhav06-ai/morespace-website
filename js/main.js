@@ -82,9 +82,40 @@ function mapDbProperty(row) {
 }
 const getProjects = () => (window.__DB_PROJECTS && window.__DB_PROJECTS.length) ? window.__DB_PROJECTS : PROJECTS;
 
+/* Existing Neopolis Infra marketing renders, matched to these exact static
+   catalogue records. Keep current database images authoritative. */
+const VERIFIED_PROJECT_RENDERINGS = new Map([
+  ["005-YBgblqNrWwflMn8m.jpg", {
+    name: "Rajapushpa Infina", rera: "P02400007500",
+    src: "assets/projects/rajapushpa-infina.webp",
+    source: "https://neopolisinfra.com/projects/rajapushpa-infina-manchirevula.html",
+  }],
+  ["screenshot-2025-06-26-185645-YleQ2lv89rigEr8y.jpg", {
+    name: "Rajapushpa Pristinia", rera: "P02400006086",
+    src: "assets/projects/rajapushpa-pristinia.webp",
+    source: "https://neopolisinfra.com/projects/rajapushpa-pristinia-kokapet.html",
+  }],
+  ["west-aerial-view-A1a5PJ1Wr6tjP8L7.jpg", {
+    name: "Rajapushpa Provinca", rera: "P02400002487",
+    src: "assets/projects/rajapushpa-provinca.webp",
+    source: "https://neopolisinfra.com/projects/rajapushpa-provinca-nanakramguda.html",
+  }],
+  ["screenshot-2025-06-26-164624-YKbl1xprJLigJV3M.png", {
+    name: "Rajapushpa Serenedale", rera: "P01100005584",
+    src: "assets/projects/rajapushpa-serenedale.webp",
+    source: "https://neopolisinfra.com/projects/rajapushpa-serenedale-tellapur.html",
+  }],
+]);
+
+function verifiedProjectRendering(project) {
+  const rendering = VERIFIED_PROJECT_RENDERINGS.get(project.img);
+  return rendering && rendering.name === project.name && rendering.rera === project.rera
+    ? rendering : null;
+}
+
 function projectImageUrl(project) {
   const url = project.image_url;
-  if (!url) return IMG(project.img);
+  if (!url) return verifiedProjectRendering(project)?.src || IMG(project.img);
   try {
     const parsed = new URL(url, location.href);
     const filename = parsed.pathname.split('/').pop();
@@ -101,6 +132,7 @@ document.addEventListener('error', (event) => {
   const image = event.target;
   if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-project-image')) return;
   if (image.getAttribute('src') === PROJECT_IMAGE_FALLBACK) return;
+  image.closest('.pcard__media')?.querySelector('[data-project-rendering]')?.remove();
   image.src = PROJECT_IMAGE_FALLBACK;
   image.alt = "Project image unavailable";
 }, true);
@@ -226,14 +258,17 @@ function buildFab() {
 /* ---------- Project card ---------- */
 function projectCard(p) {
   const image = projectImageUrl(p);
+  const rendering = verifiedProjectRendering(p);
+  const isRendering = rendering?.src === image;
   const statusClass = p.status === 'Landlord Share' || p.status === 'Ongoing' ? 'is-ongoing'
     : (/Pre/i.test(p.status) ? 'is-prelaunch' : '');
   const msg = `Hi More Space, I'm interested in ${p.name} (${p.location}). Please share details.`;
   return `
   <article class="pcard reveal" data-type="${p.type}">
     <div class="pcard__media">
-      <img loading="lazy" data-project-image src="${image}" alt="${image === PROJECT_IMAGE_FALLBACK ? 'Project image unavailable' : p.name}">
+      <img loading="lazy" data-project-image src="${image}" alt="${image === PROJECT_IMAGE_FALLBACK ? 'Project image unavailable' : p.name + (isRendering ? ' — project rendering' : '')}">
       <span class="pcard__tag ${statusClass}">${p.status}</span>
+      ${isRendering ? `<a class="pcard__rendering" data-project-rendering href="${rendering.source}" target="_blank" rel="noopener noreferrer" aria-label="Project rendering for ${p.name}, sourced from Neopolis Infra">Project rendering</a>` : ''}
     </div>
     <div class="pcard__body">
       <span class="pcard__loc">${I.pin}${p.location}</span>

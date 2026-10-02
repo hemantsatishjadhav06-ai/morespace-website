@@ -267,6 +267,8 @@ body.nav-open .burger span:nth-child(3){ transform: translateY(-6px) rotate(-45d
 .pcard__tag { position: absolute; top: 12px; left: 12px; font-family: var(--font-display); font-weight: 600; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; padding: .4em .8em; border-radius: var(--r-pill); background: rgba(255,255,255,.92); color: var(--indigo); backdrop-filter: blur(6px); }
 .pcard__tag.is-prelaunch { background: var(--green); color:#fff; }
 .pcard__tag.is-ongoing { background: var(--grad); color:#fff; }
+.pcard__rendering { position: absolute; bottom: 12px; left: 12px; padding: .35em .7em; border-radius: var(--r-pill); background: #fff; color: var(--indigo); font-size: .75rem; font-weight: 600; }
+.pcard__rendering:hover { text-decoration: underline; }
 .pcard__body { padding: 1.25rem 1.3rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
 .pcard__loc { display: inline-flex; align-items: center; gap: .35rem; color: var(--blue); font-size: .82rem; font-weight: 600; font-family: var(--font-display); }
 .pcard__loc svg { width: 14px; height: 14px; }
