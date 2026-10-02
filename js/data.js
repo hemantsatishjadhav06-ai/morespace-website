@@ -1,6 +1,6 @@
 /* ===================================================================
    More Space — Site data (single source of truth)
-   All project facts + imagery preserved from morespace.ai
+   Project facts + original image identifiers preserved from morespace.ai
    =================================================================== */
 
 const SITE = {
@@ -15,16 +15,44 @@ const SITE = {
   address: "3rd & 4th Floor, Neopolis Infra, Isha Nest, Prashanthi Hills, Plot No 10, Gachibowli, Khajaguda, Hyderabad, Telangana 500032",
   hours: "9:30 AM – 7:30 PM (Mon–Sun)",
   socials: {
-    facebook: "https://www.facebook.com/61577172604485",
-    instagram: "https://www.instagram.com/morespacehyd/",
+    facebook: "https://www.facebook.com/585141221346435",
+    instagram: "https://www.instagram.com/morespace.ai/",
     linkedin: "https://www.linkedin.com/in/morespaceai-digital-66a93a374/",
-    twitter: "https://x.com/morespaceai"
+    twitter: null
   }
 };
 
-/* Image helper — same Zyro CDN assets used on the live site */
-const IMG = (id, w = 900, h = 680) =>
-  `https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=${w},h=${h},fit=crop/AMq19Z68OEtq90DG/${id}`;
+/* The original bundled CDN images have been removed at their origin.
+   Keep the project data and show an honest placeholder until current photos
+   are supplied. Live database images from other locations remain supported. */
+const PROJECT_IMAGE_FALLBACK = "assets/project-image-unavailable.svg";
+const MISSING_IMAGE_FILENAMES = new Set([
+  "005-YBgblqNrWwflMn8m.jpg",
+  "3.-aerial-top-view-Yg2yLwERJRF8BKBE.jpg",
+  "513083668_10043339375761994_2646727081486807655_n-mjEGQWXJBJcoBoXy.jpg",
+  "aarka-brochure-6_compressed_page-0001-mk3J86D1w4I8129p.jpg",
+  "asbl-broadway-project-project-large-image1-1924-dOqDa4M35vTDV2Lo.jpg",
+  "download-YbNJnxVpkMiVXbPv.jpeg",
+  "elevation-b-moonglade-apartments-kokapet-dOqDa436DNF2zDXo.jpg",
+  "elevation-f-srias-iwa-sas-iwa-dOqDa4Xo9ku2wl22.jpg",
+  "ragava-iris-6_cropped_page-0001-ALpPBMOQ9DhXK2bG.jpg",
+  "screenshot-2025-06-07-144932-dOqDl22L3DIpkpWB.png",
+  "screenshot-2025-06-26-140123-YanJ6aqErrS1kv3K.png",
+  "screenshot-2025-06-26-164624-YKbl1xprJLigJV3M.png",
+  "screenshot-2025-06-26-164819-ALpPBGzevwfzBDq8.png",
+  "screenshot-2025-06-26-165518-YKbl1x9PyNcvNxJ7.png",
+  "screenshot-2025-06-26-185645-YleQ2lv89rigEr8y.jpg",
+  "siras-the-boat-club-34_compressed_page-0001-AVLa3ZvOyEujkLg2.jpg",
+  "ssi_fortune-grande-_-facade-concept-19_page-0001-1-AoPJN11R1XUOkkM2.jpg",
+  "untitled-design-A85V2Gln5jFKZkow.png",
+  "vamsiram-newmark-property-image-AzGNjz1QVWsZMzWo.jpg",
+  "vasavi-atlantis-12_page-0001-YrDJ1ZXQPnsw8RQM.jpg",
+  "west-aerial-view-A1a5PJ1Wr6tjP8L7.jpg",
+  "whatsapp-image-2025-05-09-at-12.30-AQEZ4MG0QvUWnzEg.jpg"
+]);
+const IMG = (id, w = 900, h = 680) => !id || MISSING_IMAGE_FILENAMES.has(id)
+  ? PROJECT_IMAGE_FALLBACK
+  : `https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=${w},h=${h},fit=crop/AMq19Z68OEtq90DG/${id}`;
 
 const HERO_VIDEO = "https://videos.pexels.com/video-files/2325093/2325093-hd_1920_1080_25fps.mp4";
 

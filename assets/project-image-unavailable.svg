@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="680" viewBox="0 0 900 680">
+  <rect width="900" height="680" fill="#F2F0FA"/>
+  <g fill="none" stroke="#2D236D" stroke-opacity=".1" stroke-width="2">
+    <circle cx="790" cy="90" r="280"/>
+    <circle cx="790" cy="90" r="200"/>
+    <path d="M-120 650 360 170 800 610"/>
+  </g>
+  <text x="450" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#2D236D">Project image unavailable</text>
+  <text x="450" y="372" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" fill="#1D1E20">Ask us for current project photos</text>
+</svg>
