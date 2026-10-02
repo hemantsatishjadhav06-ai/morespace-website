@@ -2,8 +2,8 @@
 
 A redesigned, multi-page static website for **More Space**, a premium real-estate
 marketing firm in Hyderabad. This is a structural + UI/UX rebuild of
-[morespace.ai](https://morespace.ai/): **same brand colours, same content and
-imagery — completely new structure and experience.**
+[morespace.ai](https://morespace.ai/): **same brand colours and project content
+— completely new structure and experience.**
 
 No build tools, no frameworks. Just HTML, CSS and vanilla JS — ready to drop on
 GitHub Pages, Netlify, or any static host.
@@ -54,7 +54,7 @@ morespace-site/
 ├── js/
 │   ├── data.js                 # All project content (single source of truth)
 │   └── main.js                 # Header/footer, filtering, animations, form
-├── assets/                     # (reserved for local assets)
+├── assets/                     # Local wordmark favicon and neutral image fallbacks
 └── README.md
 ```
 
@@ -106,7 +106,7 @@ npx serve .
 
 ## 📝 Notes
 
-- Images are loaded from More Space's existing CDN so nothing is duplicated.
+- Removed CDN images use local abstract artwork and an explicit "Project image unavailable" placeholder. Supply verified current project photos to restore photography; working database image URLs remain supported.
 - The contact form has no backend — on submit it composes a WhatsApp message to
   the office number. Swap in Formspree/Getform or your own endpoint if you want
   email delivery.

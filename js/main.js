@@ -82,6 +82,29 @@ function mapDbProperty(row) {
 }
 const getProjects = () => (window.__DB_PROJECTS && window.__DB_PROJECTS.length) ? window.__DB_PROJECTS : PROJECTS;
 
+function projectImageUrl(project) {
+  const url = project.image_url;
+  if (!url) return IMG(project.img);
+  try {
+    const parsed = new URL(url, location.href);
+    const filename = parsed.pathname.split('/').pop();
+    if (parsed.hostname === "assets.zyrosite.com" && parsed.pathname.includes("/AMq19Z68OEtq90DG/") && MISSING_IMAGE_FILENAMES.has(filename)) {
+      return PROJECT_IMAGE_FALLBACK;
+    }
+  } catch { return PROJECT_IMAGE_FALLBACK; }
+  return url;
+}
+
+/* A removed database image must not leave a broken image or imply that the
+   neutral fallback is a photograph of the named project. */
+document.addEventListener('error', (event) => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-project-image')) return;
+  if (image.getAttribute('src') === PROJECT_IMAGE_FALLBACK) return;
+  image.src = PROJECT_IMAGE_FALLBACK;
+  image.alt = "Project image unavailable";
+}, true);
+
 /* ---------- Header ---------- */
 function buildHeader() {
   const mount = $('#site-header'); if (!mount) return;
@@ -91,7 +114,6 @@ function buildHeader() {
   <header class="site-header" id="siteHeader">
     <div class="container">
       <a class="brand" href="index.html" aria-label="More Space home">
-        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=120,fit=crop,q=95/AMq19Z68OEtq90DG/untitled-design-A85V2Gln5jFKZkow.png" alt="More Space logo">
         <span>more<b>space</b></span>
       </a>
       <nav class="nav" aria-label="Primary">
@@ -146,7 +168,7 @@ function buildFooter() {
             <a href="${s.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.fb}</a>
             <a href="${s.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.ig}</a>
             <a href="${s.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.li}</a>
-            <a href="${s.twitter}" target="_blank" rel="noopener" aria-label="X">${I.x}</a>
+            ${s.twitter ? `<a href="${s.twitter}" target="_blank" rel="noopener" aria-label="X">${I.x}</a>` : ''}
           </div>
         </div>
         <div>
@@ -201,13 +223,14 @@ function buildFab() {
 
 /* ---------- Project card ---------- */
 function projectCard(p) {
+  const image = projectImageUrl(p);
   const statusClass = p.status === 'Landlord Share' || p.status === 'Ongoing' ? 'is-ongoing'
     : (/Pre/i.test(p.status) ? 'is-prelaunch' : '');
   const msg = `Hi More Space, I'm interested in ${p.name} (${p.location}). Please share details.`;
   return `
   <article class="pcard reveal" data-type="${p.type}">
     <div class="pcard__media">
-      <img loading="lazy" src="${p.image_url || IMG(p.img, 760, 580)}" alt="${p.name}">
+      <img loading="lazy" data-project-image src="${image}" alt="${image === PROJECT_IMAGE_FALLBACK ? 'Project image unavailable' : p.name}">
       <span class="pcard__tag ${statusClass}">${p.status}</span>
     </div>
     <div class="pcard__body">
@@ -254,7 +277,7 @@ function renderUpcomingCards() {
   const grid = $('#upcomingGrid'); if (!grid) return;
   grid.innerHTML = UPCOMING.map(u => `
     <a class="loc reveal" href="${u.page}">
-      <img loading="lazy" src="${IMG(u.img, 760, 560)}" alt="${u.name}">
+      <img loading="lazy" data-project-image src="${IMG(u.img, 760, 560)}" alt="${IMG(u.img) === PROJECT_IMAGE_FALLBACK ? 'Project image unavailable' : u.name}">
       <span class="arrow">${I.arrow}</span>
       <div class="loc__body">
         <span class="loc__kicker">${u.zone} · ${u.tag}</span>

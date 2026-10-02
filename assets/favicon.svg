@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="8" fill="#FFFFFF"/>
+  <g font-family="Arial, sans-serif" font-size="19" text-anchor="middle" fill="#2D236D">
+    <text x="32" y="27">more</text>
+    <text x="32" y="48" font-weight="700">space</text>
+  </g>
+</svg>
