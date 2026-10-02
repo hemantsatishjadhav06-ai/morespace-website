@@ -314,8 +314,30 @@ function observeReveal() {
 /* ---------- Contact form → backend enquiry (WhatsApp fallback) ---------- */
 function initForm() {
   const form = $('#contactForm'); if (!form) return;
+  const notice = $('#formSuccess');
+  const note = form.querySelector('.form-note');
+  if (note) note.textContent = 'If your enquiry cannot be sent here, you can send it on WhatsApp.';
+  function showNotice(text, url) {
+    if (!notice) return;
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+    notice.replaceChildren(document.createTextNode(text));
+    if (url) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.className = 'btn btn-whatsapp btn-sm';
+      link.textContent = 'Send on WhatsApp';
+      notice.append(document.createElement('br'), link);
+    }
+    notice.classList.add('show');
+    notice.scrollIntoView({ block: 'nearest' });
+  }
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    notice?.classList.remove('show');
+    notice?.replaceChildren();
     const d = Object.fromEntries(new FormData(form).entries());
     const btn = form.querySelector('[type="submit"]');
     const orig = btn ? btn.textContent : '';
@@ -326,13 +348,13 @@ function initForm() {
     };
     try {
       await submitEnquiry(payload);
-      $('#formSuccess')?.classList.add('show');
+      showNotice('Thank you, your enquiry was sent.');
       form.reset();
     } catch {
-      // Backend unreachable → fall back to WhatsApp so no lead is ever lost
-      const msg = `Hi More Space,%0A%0AName: ${d.name || ''}%0APhone: ${d.phone || ''}%0AEmail: ${d.email || ''}%0A%0A${d.message || ''}`;
-      window.open(`https://wa.me/${SITE.whatsapp}?text=${msg}`, '_blank');
-      $('#formSuccess')?.classList.add('show');
+      const msg = `Hi More Space,\n\nName: ${d.name || ''}\nPhone: ${d.phone || ''}\nEmail: ${d.email || ''}\nInterest: ${d.interest || ''}\n\n${d.message || ''}`;
+      const url = wa(msg);
+      showNotice('Your enquiry has not been sent. Send it on WhatsApp.', url);
+      try { window.open(url, '_blank', 'noopener'); } catch { /* The link remains available when popups are blocked. */ }
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = orig || 'Submit enquiry'; }
     }
