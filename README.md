@@ -115,3 +115,19 @@ npx serve .
 ---
 
 © More Space. Rebuilt as a static multi-page site.
+
+## 📰 Blog publishing (via SM Manager)
+
+Blog posts are written and approved in SM Manager (the More Space workspace →
+Blog). Nothing here is published until the owner approves the exact post in the
+dashboard. On approval and publish, SM Manager:
+
+1. commits `blog/<slug>.html`, `blog/index.html` and `blog/img/<slug>-hero.jpg`
+   to `main` in one commit, then
+2. dispatches `.github/workflows/netlify-publish.yml`, which mirrors the live
+   Netlify site (`morespace.netlify.app`), overlays `blog/`, and ZIP-deploys it —
+   so pages that exist only on the live site (e.g. `admin/`) are kept.
+
+**One-time setup:** add a repository secret `NETLIFY_TOKEN` (a Netlify personal
+access token with access to the `morespace` site): Settings → Secrets and
+variables → Actions → New repository secret.
